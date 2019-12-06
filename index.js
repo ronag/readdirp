@@ -103,10 +103,9 @@ class ReaddirpStream extends Readable {
     this._root = sysPath.resolve(root);
     this._isDirent = !opts.alwaysStat && 'Dirent' in fs;
     this._statsProp = this._isDirent ? 'dirent' : 'stats';
-    this._readdir_options = { encoding: 'utf8', withFileTypes: this._isDirent };
 
     // Launch stream with one parent, the root dir.
-    this.parents = [this._exploreDir(root, 1, this._readdir_options)];
+    this.parents = [this._exploreDir(root, 1)];
     this.reading = false;
     this.parent = null;
   }
@@ -138,7 +137,7 @@ class ReaddirpStream extends Readable {
           )) {
             if (this._isDirAndMatchesFilter(entry)) {
               if (depth <= this._maxDepth) {
-                this.parents.push(this._exploreDir(entry.fullPath, depth + 1, this._readdir_options));
+                this.parents.push(this._exploreDir(entry.fullPath, depth + 1));
               }
               
               if (this._wantsDir) {
@@ -163,7 +162,7 @@ class ReaddirpStream extends Readable {
 
   async _exploreDir(path, depth) {
     return {
-      files: await readdir(path, this._readdir_options),
+      files: await readdir(path, { encoding: 'utf8', withFileTypes: this._isDirent }),
       depth,
       path
     };
